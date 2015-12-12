@@ -1,10 +1,9 @@
 package hiergo
 
 import (
-	"testing"
 	"github.com/ghodss/yaml"
-	"log"
 	"reflect"
+	"testing"
 )
 
 var guardians = []byte(`quotes:
@@ -26,23 +25,22 @@ Gamora:
 
 func Test_GetChildValue(t *testing.T) {
 	conf := config{}
-	err:= yaml.Unmarshal(guardians, &conf)
-	log.Println(conf, err)
-	quotes := conf.GetValue("Gamora:quotes")
+	yaml.Unmarshal(guardians, &conf)
+	quotes := conf.getString("Gamora:quotes")
 	if !reflect.DeepEqual(quotes, []string{"I am going to die surrounded by the biggest idiots in the galaxy.", "We're just like Kevin Bacon!"}) {
-		t.Error("Invalid GetValue result")
+		t.Error(quotes)
 	}
-	quotes = conf.GetValue("Drax:quotes")
+	quotes = conf.getString("Drax:quotes")
 	if !reflect.DeepEqual(quotes, []string{"All heroes start somewhere.", "When things get bad, they'll do their worst."}) {
-		t.Error("Invalid GetValue result")
+		t.Error(quotes)
 	}
 }
 
 func Test_GetFieldPath(t *testing.T) {
 	testFields := map[string]fieldPath{}
-	testFields["child:field"] = fieldPath{fieldName:"field", path:[]string{"child"}}
-	testFields["field"] = fieldPath{fieldName:"field", path:[]string{}}
-	testFields["child1:child2:field"] = fieldPath{fieldName:"field", path:[]string{"child1", "child2"}}
+	testFields["child:field"] = fieldPath{fieldName: "field", path: []string{"child"}}
+	testFields["field"] = fieldPath{fieldName: "field", path: []string{}}
+	testFields["child1:child2:field"] = fieldPath{fieldName: "field", path: []string{"child1", "child2"}}
 	testFields[""] = fieldPath{}
 	for path, v := range testFields {
 		newFP := newFieldPath(path)
