@@ -1,4 +1,4 @@
-package hiergo
+package goiera
 
 import (
 	"github.com/ghodss/yaml"

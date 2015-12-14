@@ -1,9 +1,9 @@
-package hiergo
+package goiera
 
 import (
 	"strings"
-	"encoding/json"
-	"log"
+
+	"github.com/ghodss/yaml"
 )
 
 type Number string
@@ -11,6 +11,7 @@ type Bool string
 
 type Config interface {
 	GetValue(field string) interface{}
+	GetString(field string) []string
 }
 
 type Value interface{}
@@ -21,6 +22,12 @@ type fieldPath struct {
 }
 
 type config map[string]interface{}
+
+func UnmarshalConfig(cbytes []byte) Config {
+	conf := config{}
+	yaml.Unmarshal(cbytes, &conf)
+	return conf
+}
 
 func newFieldPath(field string) (fp fieldPath) {
 	fields := strings.Split(field, SEPARATOR)
@@ -34,7 +41,7 @@ func newFieldPath(field string) (fp fieldPath) {
 	return
 }
 
-func (c config) GetValue(field string) (value Value) {
+func (c config) GetValue(field string) (value interface{}) {
 	fp := newFieldPath(field)
 	t := c
 	f, ok := t[fp.fieldName]
@@ -46,8 +53,8 @@ func (c config) GetValue(field string) (value Value) {
 		if ok {
 			if nmap, ok := n.(map[string]interface{}); ok {
 				v, ok := nmap[fp.fieldName]
+				t = nmap
 				if ok {
-					t = nmap
 					value = v
 				}
 			}
@@ -58,7 +65,7 @@ func (c config) GetValue(field string) (value Value) {
 	return
 }
 
-func (c config) getString(field string) []string {
+func (c config) GetString(field string) []string {
 	f := c.GetValue(field)
 	switch f.(type) {
 	case []interface{}:
@@ -66,7 +73,6 @@ func (c config) getString(field string) []string {
 		for i := range f.([]interface{}) {
 			b[i] = f.([]interface{})[i].(string)
 		}
-		log.Println(b)
 		return b
 	case interface{}:
 		return []string{f.(string)}

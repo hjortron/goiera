@@ -1,3 +1,3 @@
-package hiergo
+package goiera
 
 const SEPARATOR = ":"
